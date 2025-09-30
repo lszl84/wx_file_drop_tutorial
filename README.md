@@ -1,11 +1,5 @@
 # wx_file_drop_tutorial
 
-Using `wxTreeCtrl` from `wxWidgets` to build directory tree. In this tutorial
-we build a desktop app that compiles to native code on Windows, Mac, 
-and Linux.
-
-See the YouTube video for details: https://www.youtube.com/watch?v=q63j7ZkWfRE
-
 ### System Requirements
 
 To get started with this project, ensure you have the following tools and libraries:
@@ -61,4 +55,3 @@ MIT License. Can be used in closed-source commercial products.
 ---
 Check out the blog for more! [www.onlyfastcode.com](https://www.onlyfastcode.com)
 ---
-# wx_file_drop_tutorial
