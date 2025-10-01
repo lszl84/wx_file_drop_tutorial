@@ -1,4 +1,3 @@
-#include <wx/dnd.h>
 #include <wx/wx.h>
 
 #include "bufferedbitmap.h"
@@ -18,6 +17,9 @@ private:
     BufferedBitmap *bitmap;
     wxImage image;
 
+    wxButton *zoomInButton;
+    wxButton *zoomOutButton;
+    
     void OnOpenImage(wxCommandEvent &event);
     void OnZoomIn(wxCommandEvent &event);
     void OnZoomOut(wxCommandEvent &event);
@@ -42,17 +44,19 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size)
     auto sizer = new wxBoxSizer(wxVERTICAL);
 
     bitmap = new BufferedBitmap(this, wxID_ANY,
-                                wxBitmap(wxSize(1, 1)),
                                 wxDefaultPosition, FromDIP(wxSize(500, 200)));
     
     auto imageButton = new wxButton(this, wxID_ANY, "Load Image...");
-    auto zoomInButton = new wxButton(this, wxID_ANY, "Zoom In");
-    auto zoomOutButton = new wxButton(this, wxID_ANY, "Zoom Out");
+    zoomInButton = new wxButton(this, wxID_ANY, "Zoom In");
+    zoomOutButton = new wxButton(this, wxID_ANY, "Zoom Out");
 
     imageButton->Bind(wxEVT_BUTTON, &MyFrame::OnOpenImage, this);
     zoomInButton->Bind(wxEVT_BUTTON, &MyFrame::OnZoomIn, this);
     zoomOutButton->Bind(wxEVT_BUTTON, &MyFrame::OnZoomOut, this);
 
+    zoomInButton->Disable();
+    zoomOutButton->Disable();
+   
     auto buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     buttonSizer->Add(imageButton, 0, wxLEFT, FromDIP(5));
     buttonSizer->Add(zoomInButton, 0, wxLEFT, FromDIP(5));
@@ -80,6 +84,9 @@ void MyFrame::OnOpenImage(wxCommandEvent &event)
     }
 
     UpdateBitmapImage(image);
+
+    zoomInButton->Enable();
+    zoomOutButton->Enable();
 }
 
 void MyFrame::UpdateBitmapImage(const wxImage &image)
