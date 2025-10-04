@@ -1,6 +1,9 @@
+#include <wx/simplebook.h>
 #include <wx/wx.h>
 
 #include "bufferedbitmap.h"
+#include "fileplaceholder.h"
+#include "singlefiledroptarget.h"
 
 class MyApp : public wxApp
 {
@@ -13,8 +16,12 @@ class MyFrame : public wxFrame
 public:
     MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
 
+    void LoadImageFile(const wxString& file);
 private:
+    FilePlaceholder *placeholder;
     BufferedBitmap *bitmap;
+
+    wxSimplebook *viewSwitcher;
     wxImage image;
 
     wxButton *zoomInButton;
@@ -43,8 +50,18 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size)
 {
     auto sizer = new wxBoxSizer(wxVERTICAL);
 
-    bitmap = new BufferedBitmap(this, wxID_ANY,
-                                wxDefaultPosition, FromDIP(wxSize(500, 200)));
+    viewSwitcher = new wxSimplebook(this, wxID_ANY,
+                                    wxDefaultPosition, FromDIP(wxSize(500, 200)));
+    bitmap = new BufferedBitmap(viewSwitcher, wxID_ANY);
+    placeholder = new FilePlaceholder(viewSwitcher, wxID_ANY);
+
+    viewSwitcher->ShowNewPage(placeholder);
+
+    auto dropTarget = new SingleFileDropTarget([this](const wxString& file) {
+        this->LoadImageFile(file);
+    });
+
+    viewSwitcher->SetDropTarget(dropTarget);
     
     auto imageButton = new wxButton(this, wxID_ANY, "Load Image...");
     zoomInButton = new wxButton(this, wxID_ANY, "Zoom In");
@@ -62,7 +79,7 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size)
     buttonSizer->Add(zoomInButton, 0, wxLEFT, FromDIP(5));
     buttonSizer->Add(zoomOutButton, 0, wxLEFT, FromDIP(5));
 
-    sizer->Add(bitmap, 1, wxEXPAND | wxALL, FromDIP(10));
+    sizer->Add(viewSwitcher, 1, wxEXPAND | wxALL, FromDIP(10));
     sizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxRIGHT | wxBOTTOM, FromDIP(10));
 
     this->SetSizerAndFit(sizer);
@@ -78,13 +95,20 @@ void MyFrame::OnOpenImage(wxCommandEvent &event)
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
-    if (!image.LoadFile(openFileDialog.GetPath())) {
+    LoadImageFile(openFileDialog.GetPath());
+}
+
+void MyFrame::LoadImageFile(const wxString& file)
+{
+    if (!image.LoadFile(file)) {
         wxMessageBox("Failed to load image", "Error", wxOK | wxICON_ERROR);
         return;
     }
 
     UpdateBitmapImage(image);
 
+    viewSwitcher->ShowNewPage(bitmap);
+    
     zoomInButton->Enable();
     zoomOutButton->Enable();
 }

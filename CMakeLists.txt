@@ -35,7 +35,7 @@ else()
     endforeach()
 endif()
 
-set(SRCS main.cpp bufferedbitmap.cpp)
+set(SRCS main.cpp bufferedbitmap.cpp fileplaceholder.cpp)
 
 if(APPLE)
     # create bundle on apple compiles
